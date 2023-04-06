@@ -16,21 +16,23 @@ from inro.emme.desktop import app as _app
 import inro.emme.database.emmebank as _emmebank
 
 # R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223
-name_of_project = "BP_2017_boa_ali_modes ijk_samm"
+name_of_project = "BP_2017_boa_ali_230406"
 # project = 'D:/10350700_255_AE_DS/Person2040_255_JA_230302/E444bank//%s//%s//'
-project = 'R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223/E444bank//%s//%s//'
-# regional_bases =["Palt", "Samm", "Skane", "Sydost", "Vast"]
-regional_bases =["Samm"]
+project = 'R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223_Resultatriggning/E443bank/%s/%s/'
+regional_bases =["Palt", "Samm", "Skane", "Sydost", "Vast"]
+# regional_bases =["Samm"]
 # regional_bases =["Palt"]
-my_desktop = _app.start_dedicated(project='R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223/E444bank/JA/NB/Jvg//Jvg.emp', visible=False, user_initials="ds")
+# my_desktop = _app.start_dedicated(project='R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223_Resultatriggning/E443bank/UA/NB/Jvg/Jvg.emp', visible=False, user_initials="ds")
+my_desktop = _app.start_dedicated(project='R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223_Resultatriggning/E443bank/UA/NB/Jvg/Jvg.emp', visible=False, user_initials="ds")
 my_modeller = _m.Modeller(my_desktop)
 print(my_desktop.version)
-scenarios = [1001]
+# scenarios = [1001]
 
+scen_id = 1101
 # decide if UA and/or JA sjould be analyzed
 # scenario_ja_ua = ["JA", "UA"]
 # scenario_ja_ua = ["UA"]
-scenario_ja_ua = ["JA"]
+scenario_ja_ua = ["UA"]
 
 
 nodes = {"JA": {}, "UA": {}}
@@ -43,10 +45,10 @@ modes = ["i","j","k"]
 
 for ja_ua in scenario_ja_ua:
 
-    with _emmebank.Emmebank(project %(ja_ua,"NB") + "//Jvg////emmebank") as eb:
+    with _emmebank.Emmebank(project %(ja_ua,"NB") + "/Jvg/emmebank") as eb:
         node_names = {}
 
-        scen = eb.scenario(1001)
+        scen = eb.scenario(scen_id)
         my_network = scen.get_network()
 
         my_network.create_attribute("NODE", "transfers_boa", default_value=0)
@@ -109,9 +111,9 @@ for ja_ua in scenario_ja_ua:
     for regional_base in regional_bases:
         # project_file = project %(ja_ua, "RB") + regional_base + "//Koll//Koll.emp"
 
-        with _emmebank.Emmebank(project %(ja_ua,"RB")  + regional_base + "//Koll//emmebank") as eb:
+        with _emmebank.Emmebank(project %(ja_ua,"RB")  + regional_base + "//Koll/emmebank") as eb:
 
-            scen = eb.scenario(1001)
+            scen = eb.scenario(scen_id)
             my_network = scen.get_network()
             my_network.create_attribute("NODE", "transfers_boa", default_value=0)
             my_network.create_attribute("NODE", "transfers_ali", default_value=0)
@@ -155,7 +157,7 @@ for ja_ua in scenario_ja_ua:
                         nodes[ja_ua][node.id]["ali_tot"] += ca_ali_i
                         nodes[ja_ua][node.id]["ali_transfers"] += node.transfers_ali
                         nodes[ja_ua][node.id]["ali_final"] += node.final_alightings
-                        nodes[ja_ua][node.id]["ali_boa_tot"] += ca_board_i + ca_ali_i
+                        nodes[ja_ua][node.id]["ali_boa_tot"] += (ca_board_i + ca_ali_i)
 
                 else:
                 # except KeyError: # there are nodes in regional bases that dont exist in national. skip these
@@ -168,7 +170,7 @@ for ja_ua in scenario_ja_ua:
         for key_, val_ in nodes[ja_ua][node].items():
 
             if key_ in ["station", "station_selection"]:
-                print("passed")
+                # print("passed")
                 pass
 
             else:
