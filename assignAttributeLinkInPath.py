@@ -34,7 +34,8 @@ scenario_id = 1002
 
 scenario = my_emmebank.scenario(scenario_id)
 network = scenario.get_network()
-my_excluded_links = [("681141","681131"), ("681131","681101"), ("628022","681071")] # links in i, j form
+# my_excluded_links = [("681141","681131"), ("681131","681101"), ("628022","681071")] # links in i, j form
+my_excluded_links = [("5400","2310")] # links in i, j form
 my_excluded_links =[network.link(link_id[0], link_id[1]) for link_id in my_excluded_links] # get link objects
 my_excluded_links_rev = [link.reverse_link for link in my_excluded_links] # get reverse links
 my_excluded_links = my_excluded_links + my_excluded_links_rev

@@ -14,9 +14,11 @@ from emme_functions.emme_functions import line_link_list as link_list
 import inro.modeller as _m
 from inro.emme.desktop import app as _app
 import inro.emme.database.emmebank as _emmebank
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
 
 # R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223
-name_of_project = "BP_2017_boa_ali_230406"
+name_of_project = "Sthlm_Oslo_255_boa_ali"
 # project = 'D:/10350700_255_AE_DS/Person2040_255_JA_230302/E444bank//%s//%s//'
 project = 'R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223_Resultatriggning/E443bank/%s/%s/'
 regional_bases =["Palt", "Samm", "Skane", "Sydost", "Vast"]
@@ -26,8 +28,12 @@ regional_bases =["Palt", "Samm", "Skane", "Sydost", "Vast"]
 my_desktop = _app.start_dedicated(project='R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223_Resultatriggning/E443bank/UA/NB/Jvg/Jvg.emp', visible=False, user_initials="ds")
 my_modeller = _m.Modeller(my_desktop)
 print(my_desktop.version)
-# scenarios = [1001]
 
+
+stations_sel = pd.read_csv("indata/stations_boa_ali.txt", encoding="utf-8")["station"].values.tolist()
+print(stations_sel)
+#
+stations_sel = list(stations_sel)
 scen_id = 1101
 # decide if UA and/or JA sjould be analyzed
 # scenario_ja_ua = ["JA", "UA"]
@@ -45,7 +51,7 @@ modes = ["i","j","k"]
 
 for ja_ua in scenario_ja_ua:
 
-    with _emmebank.Emmebank(project %(ja_ua,"NB") + "/Jvg/emmebank") as eb:
+    with _emmebank.Emmebank(project %(ja_ua,"NB") + "//Jvg////emmebank") as eb:
         node_names = {}
 
         scen = eb.scenario(scen_id)
@@ -92,17 +98,19 @@ for ja_ua in scenario_ja_ua:
                 # # nodes[ja_ua][node.id]["base"] = "nationell"
 
 
-                # nodes[ja_ua][node.id]["boa_tot"] = 0
+
                 nodes[ja_ua][node.id]["boa_tot"] = ca_board_i #TODO set back to this
                 nodes[ja_ua][node.id]["boa_transfers"] = node.transfers_boa
                 nodes[ja_ua][node.id]["boa_initial"] = node.initial_boardings
                 nodes[ja_ua][node.id]["ali_tot"] = ca_ali_i
                 nodes[ja_ua][node.id]["ali_transfers"] = node.transfers_ali
                 nodes[ja_ua][node.id]["ali_final"] = node.final_alightings
-                nodes[ja_ua][node.id]["ali_boa_tot"] = ca_board_i + ca_ali_i
+                nodes[ja_ua][node.id]["ali_boa_tot"] = (ca_board_i + ca_ali_i)
                 nodes[ja_ua][node.id]["station"] = node["#station"]
-                # if any(node["#station"] == item for item in stations_sel):
-                #     nodes[ja_ua][node.id]["station_selection"] = True
+                if any(node["#station"] == item for item in stations_sel):
+                    nodes[ja_ua][node.id]["station_selection"] = True
+                    nodes[ja_ua][node.id]["station_order"] = stations_sel.index(node["#station"])
+
 
 
             # if ja_ua=="UA": # get station names from UA (needs to be one of JA or UA in national base (stations not imported to regional bases)
@@ -111,7 +119,7 @@ for ja_ua in scenario_ja_ua:
     for regional_base in regional_bases:
         # project_file = project %(ja_ua, "RB") + regional_base + "//Koll//Koll.emp"
 
-        with _emmebank.Emmebank(project %(ja_ua,"RB")  + regional_base + "//Koll/emmebank") as eb:
+        with _emmebank.Emmebank(project %(ja_ua,"RB")  + regional_base + "//Koll//emmebank") as eb:
 
             scen = eb.scenario(scen_id)
             my_network = scen.get_network()
@@ -169,7 +177,7 @@ for ja_ua in scenario_ja_ua:
     for node in nodes[ja_ua]:
         for key_, val_ in nodes[ja_ua][node].items():
 
-            if key_ in ["station", "station_selection"]:
+            if key_ in ["station", "station_selection", "station_order"]:
                 # print("passed")
                 pass
 
@@ -191,11 +199,59 @@ summary_ua["scenario"] = "UA"
 
 summary = pd.concat([summary_ja, summary_ua])
 summary.index.name='node_id'
-csv_name = "boa_ali_%s.csv" % name_of_project
-summary.to_csv(csv_name, sep=";", encoding="utf-8")
 
-emme_functions.auxiliary_functions.addUTF8Bom(csv_name)
 
+summary_filtered = summary.dropna(subset=['station_selection'])
+# summary_filtered = summary_filtered
+print(summary_filtered)
+name = "boa_ali_%s" % name_of_project
+csv_name = name + ".csv"
+# summary.to_csv(csv_name, sep=";", encoding="utf-8")
+# emme_functions.auxiliary_functions.addUTF8Bom(csv_name)
+
+import datetime
+today = datetime.date.today()
+info = {"project name": [name_of_project, ],"date": [datetime.date.today(), ],"catalogue": [project, ], "file created by": ["Daniel Sahlgren", ]} # collect info to save to info excel sheet
+info =pd.DataFrame.from_dict(info, orient="index")
+# info= pd.DataFrame.from_dict(info)
+#create new df for storing information in info sheet in excel
+
+
+
+#create Excel
+wb = Workbook()
+# ws = wb.active
+
+# write all data to excelsheet
+
+
+
+# Create a pivot table
+ws_ali_boa = wb.create_sheet('ali_boa')
+for r in dataframe_to_rows(summary, index=True, header=True):
+    ws_ali_boa.append(r)
+
+
+ws_NBB_stations = wb.create_sheet('ali_boa_stations')
+
+# for r in dataframe_to_rows(summary_filtered, index=False, header=True):
+#     ws_NBB_stations.append(r)
+
+ws_info = wb.create_sheet('info')
+# summary_filtered.sort_values("station_order", inplace=True)
+pvt = summary_filtered.pivot_table(index=["station_order", "station"], aggfunc='sum', values="ali_boa_tot", columns=["scenario"]).reset_index(level=0, drop=True)
+# pvt_sorted = summary_filtered.pivot_table(index='station', aggfunc='sum', values="ali_boa_tot", columns=["scenario"])
+for r in dataframe_to_rows(pvt, index=True, header=True):
+    ws_NBB_stations.append(r)
+
+for r in dataframe_to_rows(info, index=True, header=True):
+    ws_info.append(r)
+
+strf_today = datetime.date.today().strftime("%Y_%m_%d")
+
+# Save the Excel file
+wb.save(name + "_" + strf_today + '.xlsx')
+# wb.remove_sheet()
 print("done")
 
 
