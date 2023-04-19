@@ -20,10 +20,11 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 # R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223
 name_of_project = "Sthlm_Oslo_255_boa_ali"
 # project = 'D:/10350700_255_AE_DS/Person2040_255_JA_230302/E444bank//%s//%s//'
+# project = 'R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223_Resultatriggning/E443bank/%s/%s/'
 project = 'R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223_Resultatriggning/E443bank/%s/%s/'
-regional_bases =["Palt", "Samm", "Skane", "Sydost", "Vast"]
+# regional_bases =["Palt", "Samm", "Skane", "Sydost", "Vast"]
 # regional_bases =["Samm"]
-# regional_bases =["Palt"]
+regional_bases =["Palt"]
 # my_desktop = _app.start_dedicated(project='R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223_Resultatriggning/E443bank/UA/NB/Jvg/Jvg.emp', visible=False, user_initials="ds")
 my_desktop = _app.start_dedicated(project='R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223_Resultatriggning/E443bank/UA/NB/Jvg/Jvg.emp', visible=False, user_initials="ds")
 my_modeller = _m.Modeller(my_desktop)

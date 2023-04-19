@@ -13,7 +13,9 @@ from emme_functions.emme_functions import line_link_list as link_list
 
 
 
-strackor_file = "indata/banor_strackning_enligt_TRV.csv"
+# strackor_file = "indata/banor_strackning_enligt_TRV.csv"
+strackor_file = "indata/banor_med_ny_infra.csv"
+# strackor = pd.read_csv(strackor_file, encoding="UTF-8", sep=";")
 strackor = pd.read_csv(strackor_file, encoding="UTF-8", sep=";")
 
 strackor = [{"start":x, "end": y, "bana": z} for x, y,z in zip(strackor['start'], strackor['end'], strackor['bana'])]
@@ -27,15 +29,14 @@ my_emme = emme.Emme(project_file)
 my_emmebank = my_emme.my_emmebank
 my_modeller = my_emme.my_modeller
 my_emme.my_desktop.version
-scenario_id = 1002
+scenario_id = 13
 # scenario_with_stations_id = 3
 # scen_ids = {"JA": 3, "UA": 1}
-
 
 scenario = my_emmebank.scenario(scenario_id)
 network = scenario.get_network()
 # my_excluded_links = [("681141","681131"), ("681131","681101"), ("628022","681071")] # links in i, j form
-my_excluded_links = [("5400","2310")] # links in i, j form
+my_excluded_links = [("5400", "2310")] # links in i, j form
 my_excluded_links =[network.link(link_id[0], link_id[1]) for link_id in my_excluded_links] # get link objects
 my_excluded_links_rev = [link.reverse_link for link in my_excluded_links] # get reverse links
 my_excluded_links = my_excluded_links + my_excluded_links_rev
@@ -52,12 +53,14 @@ create_netfield = my_modeller.tool(NAMESPACE)
 
 new_field = create_netfield(
     network_field_type="LINK",
-    network_field_atype="STRING",
-    network_field_name="bana",
+    network_field_atype="BOOLEAN",
+    network_field_name="bana_sel",
     network_field_description="",
     overwrite=True,
     scenario=scenario)
 
+# scenario = my_emmebank.scenario(scenario_id)
+# network = scenario.get_network()
 
 for node in network.nodes():
     station = node["#station"]
@@ -74,6 +77,7 @@ excluded_links = []
 for link in network.links():
     if not ef.check_link_mode(network=network, link=link, _modes=["i", "j", "k"]):
         excluded_links.append(link)
+excluded_links = excluded_links + my_excluded_links
 
 for node in network.nodes():
     station = node["#station"]
@@ -106,7 +110,7 @@ for stracka in strackor:
     sp = network.shortest_path_tree(
         origin_node_id=start,
         link_costs='length',
-        excluded_links=excluded_links + my_excluded_links,
+        excluded_links=excluded_links,
         consider_turns=False,
         turn_costs=None,
         max_cost=None
@@ -116,8 +120,8 @@ for stracka in strackor:
     path = sp.path_to_node(stop)
 
     for link in path:
-        link["#bana"] = bana
-        link.reverse_link["#bana"] = bana
+        link["#bana_sel"] = True
+        link.reverse_link["#bana_sel"] = True
 
 
 scenario.publish_network(network)

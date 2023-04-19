@@ -6,14 +6,15 @@ import emme_functions.emme_functions as ef
 import emme_functions.auxiliary_functions as aux
 import pandas as pd
 
-nbb_project = 'D://10350700_Oslo_Sthlm/Jvg/Jvg.emp'
+nbb_project = "D:/10350700_255_AE_DS/UA1/E444bank/UA/NB/Jvg/Jvg.emp"
 
 
 
 my_emme = emme.Emme(nbb_project)
 emmebank = my_emme.my_emmebank
-UA1 = emmebank.scenario(3)
-my_network = UA1.get_network()
+scen_id = 1001
+scenario = emmebank.scenario(scen_id)
+my_network = scenario.get_network()
 
 
 
@@ -34,6 +35,6 @@ for line in transit_lines(my_network):
 
 
 
-UA1.publish_network(my_network)
+scenario.publish_network(my_network)
 
 print("done")
