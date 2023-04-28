@@ -16,26 +16,25 @@ from inro.emme.desktop import app as _app
 
 import inro.emme.database.emmebank as _emmebank
 
-# file_path_regional_bases = 'D:/10350700_255_AE_DS/UA1/E444bank/UA/RB/'
-file_path_regional_bases = 'D:/10350700_255_AE_DS/UA2/E444bank/JA/RB/'
-# transit_line_file_ = "D:/10350700_255_AE_DS/UA1/E444bank/UA/NB/Jvg/transit_lines_UA1.txt"
-transit_line_file_ = "D:/10350700_255_AE_DS/UA2/E444bank/JA/NB/Jvg/transit_lines_JA_Norge.txt"
+JA_UA = "JA"
+
+file_path_regional_bases = 'D:/AE_10350700_255/UA1_230421/E444bank/%s/RB/' %JA_UA
+transit_line_file_ = "R://7055/10350700/5_Berakningar/Sampers/build_filer_till_UA1/transit_line_7004.txt"
 regional_bases = ["Palt", "Samm", "Skane", "Sydost", "Vast"]
-# regional_bases = ["Samm"]
-build_file_path = "D:/10350700_255_AE_DS/UA2/E444bank/JA/RB/Palt/Koll"
+# regional_bases = ["Palt"]
+build_file_path = "D:\AE_10350700_255\UA1_230421\E444bank\JA\RB\Palt\Koll"
 build_file = "norge_reg_bas_4441.ems"
-# project_file_path = 'D:/10350700_255_AE_DS/UA1/E444bank/UA/NB/Jvg'
-project_file_path = 'D:/10350700_255_AE_DS/UA2/E444bank/JA/NB/Jvg'
+project_file_path = 'D:/AE_10350700_255/UA1_230421/E444bank/%s/NB/Jvg' %JA_UA
 my_desktop = _app.start_dedicated(project=project_file_path + "/Jvg.emp", visible=False, user_initials="ds")
 my_modeller = _m.Modeller(my_desktop)
 print(my_desktop.version)
 scenarios = [1001, 1002]
 # scenarios = [1002]
-delete_modes ="jk"
-# delete_modes ="ijk"
+del_modes = False
+# delete_modes ="jk"
 import_time_table = True
 import_build_file = False
-
+build_domains = ["LINK","NODE"]
 #
 # #THIS PART IMPORTS TRANSIT LINE TRANSACTION FILE TO NATIONAL BASE.
 # with _emmebank.Emmebank(project_file_path  + "//emmebank") as eb:
@@ -74,19 +73,19 @@ for regional_base in regional_bases:
             # NAMESPACE = "inro.emme.data.scenario.change_primary_scenario"
             # change_scenario = _m.Modeller().tool(NAMESPACE)
             # change_scenario(scenario=scenario_nr)
+            if del_modes:
+                NAMESPACE = "inro.emme.data.network.transit.delete_transit_lines"
+                delete_lines = my_modeller.tool(NAMESPACE)
+                try:
+                    delete_lines(selection="mode=" + delete_modes,
+                                 scenario=eb.scenario(scenario_nr))
+                    print("transit lines with mode=%s deleted" %delete_modes)
+                except inro.emme.core.exception.ArgumentError:  # if no lines exist accordning to selection
+                    print("no transit lines deleted")
+                    pass
+                # revert_on_error = False
 
-            NAMESPACE = "inro.emme.data.network.transit.delete_transit_lines"
-            delete_lines = my_modeller.tool(NAMESPACE)
-            try:
-                delete_lines(selection="mode=" + delete_modes,
-                             scenario=eb.scenario(scenario_nr))
-                print("transit lines with mode=%s deleted" %delete_modes)
-            except inro.emme.core.exception.ArgumentError:  # if no lines exist accordning to selection
-                print("no transit lines deleted")
-                pass
-            # revert_on_error = False
-
-            ## THIS SECTION IS FOR IMPORTING A BUILD FILE###
+                ## THIS SECTION IS FOR IMPORTING A BUILD FILE###
             if import_build_file:
                 import os
 
@@ -96,11 +95,14 @@ for regional_base in regional_bases:
                 process = _m.Modeller().tool(NAMESPACE)
                 # project_path = os.path.dirname(_m.Modeller().desktop.project.path)
                 network_build = os.path.join(build_file_path, "Network_builds", build_file)
+                # network_build = os.path.join(build_file_path, build_file)
+                # network_build = "D:/AE_10350700_255/UA1_230421/E444bank/JA/RB/Palt/Koll/Network_builds/norge_reg_bas_4441.ems"
                 print(network_build)
                 # network_build_links = os.path.join(project_path, "Network_builds", "edit_links.ems")
                 try:
                     process(network_builds=[network_build],
-                            domains=["LINK","NODE"],
+                            domains=build_domains,
+                            # rebuild_transit_lines=False,
                             revert_on_error=True,
                             scenarios=eb.scenario(scenario_nr))
                     print("build processed")
@@ -117,6 +119,7 @@ for regional_base in regional_bases:
             # process(transaction_file=transit_line_file_,
             #                 revert_on_error=True,
             #                 scenario=eb.scenario(scenario_nr))
+            print("Transaction file: " + transit_line_file_)
             try:
                 process(transaction_file=transit_line_file_,
                         revert_on_error=True,
