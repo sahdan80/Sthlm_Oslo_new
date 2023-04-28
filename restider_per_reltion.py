@@ -12,11 +12,15 @@ from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 import datetime
 today = datetime.date.today()
-proj_name = "Stockolm-Oslo_255_UA2"
+# proj_name = "Stockolm-Oslo_255_UA1"
+proj_name = "Stockolm-Oslo_255_JA"
 # proj_name = "UA_ny"
 scen_id = 1001 #scenario with time on us1
-project_file_path = "D:/10350700_255_AE_DS/UA2/E444bank/UA/NB/Jvg/Jvg.emp"
-ua_ver = "UA2"
+project_file_path = "D:/10350700_255_AE_DS/UA2/E444bank/JA/NB/Jvg/Jvg.emp"
+# project_file_path = "R:/7055/10350700/5_Berakningar/Sampers/UA1_230421/E444bank/UA/NB/Jvg/Jvg.emp"
+# ua_ver = "UA1"
+# ua_ver = "UA2"
+ua_ver = "JA"
 my_emme = emme.Emme(project_file=project_file_path)
 my_emmebank = my_emme.my_emmebank
 my_emme.my_desktop.version
@@ -31,7 +35,7 @@ strackor = [(x.strip(), y.strip()) for x, y in zip(strackor['start'], strackor['
 
 if ua_ver =="UA2":# exclude Arvika-Lilleström
     my_excluded_links = [("5400","2310")] # links in i, j form
-elif ua_ver=="UA1": # exclude both alternatives of Gränsbanan
+elif ua_ver=="UA1" or ua_ver=="JA": # exclude both alternatives of Gränsbanan
     my_excluded_links = [("5400","2310"), ("5400","5302")] # links in i, j form
 
 my_excluded_links =[network.link(link_id[0], link_id[1]) for link_id in my_excluded_links] # get link objects

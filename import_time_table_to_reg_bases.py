@@ -17,19 +17,20 @@ from inro.emme.desktop import app as _app
 import inro.emme.database.emmebank as _emmebank
 
 # file_path_regional_bases = 'D:/10350700_255_AE_DS/UA1/E444bank/UA/RB/'
-file_path_regional_bases = 'D:/10350700_255_AE_DS/UA2/E444bank/UA/RB/'
+file_path_regional_bases = 'D:/10350700_255_AE_DS/UA2/E444bank/JA/RB/'
 # transit_line_file_ = "D:/10350700_255_AE_DS/UA1/E444bank/UA/NB/Jvg/transit_lines_UA1.txt"
-transit_line_file_ = "D:/10350700_255_AE_DS/UA2/E444bank/UA/NB/Jvg/transit_lines_UA2.txt"
+transit_line_file_ = "D:/10350700_255_AE_DS/UA2/E444bank/JA/NB/Jvg/transit_lines_JA_Norge.txt"
 regional_bases = ["Palt", "Samm", "Skane", "Sydost", "Vast"]
-build = False # set to true if build file is to be imported
-# build_file_path = "D:/10350700_255_AE_DS/Person2040_255_JA_230302/E444bank/UA/RB/Palt/Koll/"
-# build_file = "build_reg_bases_sthlm_oslo_UA.ems"
+# regional_bases = ["Samm"]
+build_file_path = "D:/10350700_255_AE_DS/UA2/E444bank/JA/RB/Palt/Koll"
+build_file = "norge_reg_bas_4441.ems"
 # project_file_path = 'D:/10350700_255_AE_DS/UA1/E444bank/UA/NB/Jvg'
-project_file_path = 'D:/10350700_255_AE_DS/UA2/E444bank/UA/NB/Jvg'
+project_file_path = 'D:/10350700_255_AE_DS/UA2/E444bank/JA/NB/Jvg'
 my_desktop = _app.start_dedicated(project=project_file_path + "/Jvg.emp", visible=False, user_initials="ds")
 my_modeller = _m.Modeller(my_desktop)
 print(my_desktop.version)
 scenarios = [1001, 1002]
+# scenarios = [1002]
 delete_modes ="jk"
 # delete_modes ="ijk"
 import_time_table = True
@@ -86,25 +87,27 @@ for regional_base in regional_bases:
             # revert_on_error = False
 
             ## THIS SECTION IS FOR IMPORTING A BUILD FILE###
-            if build:
+            if import_build_file:
                 import os
-                if import_build_file:
-                    # proecess network builds
-                    _m = inro.modeller
-                    NAMESPACE = "inro.emme.data.network.process_network_build"
-                    process = _m.Modeller().tool(NAMESPACE)
-                    # project_path = os.path.dirname(_m.Modeller().desktop.project.path)
-                    network_build = os.path.join(build_file_path, "Network_builds", build_file)
-                    print(network_build)
-                    # network_build_links = os.path.join(project_path, "Network_builds", "edit_links.ems")
-                    try:
-                        process(network_builds=[network_build],
-                                revert_on_error=True,
-                                scenarios=eb.scenario(scenario_nr))
-                        print("build processed")
-                    except inro.emme.core.exception.Error:
-                        print("build not processed")
-                        print(inro.emme.core.exception.Error)
+
+                # proecess network builds
+                _m = inro.modeller
+                NAMESPACE = "inro.emme.data.network.process_network_build"
+                process = _m.Modeller().tool(NAMESPACE)
+                # project_path = os.path.dirname(_m.Modeller().desktop.project.path)
+                network_build = os.path.join(build_file_path, "Network_builds", build_file)
+                print(network_build)
+                # network_build_links = os.path.join(project_path, "Network_builds", "edit_links.ems")
+                try:
+                    process(network_builds=[network_build],
+                            domains=["LINK","NODE"],
+                            revert_on_error=True,
+                            scenarios=eb.scenario(scenario_nr))
+                    print("build processed")
+                # except inro.emme.core.exception.Error:
+                except:
+                    print("build not processed")
+                    print(inro.emme.core.exception.Error)
 
             # process network transit line transaction file
             NAMESPACE = "inro.emme.data.network.transit.transit_line_transaction"
@@ -116,11 +119,11 @@ for regional_base in regional_bases:
             #                 scenario=eb.scenario(scenario_nr))
             try:
                 process(transaction_file=transit_line_file_,
-                        revert_on_error=False,
+                        revert_on_error=True,
                         scenario=eb.scenario(scenario_nr))
                 print("transit transaction file imported")
             except inro.emme.core.exception.Error:
-                print("no transaction file could be read")
+                print("error when importing trasaction file ")
 
             # print("transit line transaction file imported")
 
