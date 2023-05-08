@@ -16,22 +16,24 @@ from inro.emme.desktop import app as _app
 
 import inro.emme.database.emmebank as _emmebank
 
-JA_UA = "JA"
+JA_UA = "UA"
 
-file_path_regional_bases = 'D:/AE_10350700_255/UA1_230421/E444bank/%s/RB/' %JA_UA
-transit_line_file_ = "R://7055/10350700/5_Berakningar/Sampers/build_filer_till_UA1/transit_line_7004.txt"
+file_path_regional_bases = 'D:/10350700_255_AE_DS/UA2_230502/E444bank/%s/RB/' %JA_UA
+# transit_line_file_ = "R://7055/10350700/5_Berakningar/Sampers/build_filer_till_UA1/transit_line_7004.txt"
+transit_line_file_ = "D:/10350700_255_AE_DS/UA2_230502/E444bank/UA/NB/Jvg/transit_lines_UA2_230502.txt"
 regional_bases = ["Palt", "Samm", "Skane", "Sydost", "Vast"]
 # regional_bases = ["Palt"]
-build_file_path = "D:\AE_10350700_255\UA1_230421\E444bank\JA\RB\Palt\Koll"
+build_file_path = "D:/AE_10350700_255/UA1_230421/E444bank/JA/RB/Palt/Koll"
 build_file = "norge_reg_bas_4441.ems"
-project_file_path = 'D:/AE_10350700_255/UA1_230421/E444bank/%s/NB/Jvg' %JA_UA
+project_file_path = 'D:/10350700_255_AE_DS/UA2_230502/E444bank/%s/NB/Jvg' %JA_UA
 my_desktop = _app.start_dedicated(project=project_file_path + "/Jvg.emp", visible=False, user_initials="ds")
 my_modeller = _m.Modeller(my_desktop)
 print(my_desktop.version)
 scenarios = [1001, 1002]
 # scenarios = [1002]
 del_modes = False
-# delete_modes ="jk"
+delete_modes ="jk"
+# delete_modes =""
 import_time_table = True
 import_build_file = False
 build_domains = ["LINK","NODE"]
@@ -122,7 +124,7 @@ for regional_base in regional_bases:
             print("Transaction file: " + transit_line_file_)
             try:
                 process(transaction_file=transit_line_file_,
-                        revert_on_error=True,
+                        revert_on_error=False,
                         scenario=eb.scenario(scenario_nr))
                 print("transit transaction file imported")
             except inro.emme.core.exception.Error:

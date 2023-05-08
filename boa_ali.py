@@ -18,20 +18,20 @@ from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 
 # R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223
-name_of_project = "Sthlm_Oslo_255_boa_ali"
-# project = 'D:/10350700_255_AE_DS/Person2040_255_JA_230302/E444bank//%s//%s//'
+name_of_project = "Sthlm_Oslo_255_JA"
+# project = 'D:/10350700_255_AE_DS/UA2_230504/E444bank//%s//%s//'
 # project = 'R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223_Resultatriggning/E443bank/%s/%s/'
-project = 'R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223_Resultatriggning/E443bank/%s/%s/'
-# regional_bases =["Palt", "Samm", "Skane", "Sydost", "Vast"]
+project = 'R:/7055/10350700/5_Berakningar/Sampers/UA2_230505/E444bank/%s/%s/'
+regional_bases =["Palt", "Samm", "Skane", "Sydost", "Vast"]
 # regional_bases =["Samm"]
-regional_bases =["Palt"]
+# regional_bases =["Palt"]
 # my_desktop = _app.start_dedicated(project='R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223_Resultatriggning/E443bank/UA/NB/Jvg/Jvg.emp', visible=False, user_initials="ds")
-my_desktop = _app.start_dedicated(project='R:/7055/10350700/5_Berakningar/Sampers/Rigg/Person2017_255_Nulage_230223_Resultatriggning/E443bank/UA/NB/Jvg/Jvg.emp', visible=False, user_initials="ds")
+my_desktop = _app.start_dedicated(project='R:/7055/10350700/5_Berakningar/Sampers/UA2_230505/E444bank/UA/NB/Jvg/Jvg.emp', visible=False, user_initials="ds")
 my_modeller = _m.Modeller(my_desktop)
 print(my_desktop.version)
 
 
-stations_sel = pd.read_csv("indata/stations_boa_ali.txt", encoding="utf-8")["station"].values.tolist()
+stations_sel = pd.read_csv("indata/stations_ali_boa.txt", encoding="utf-8")["station"].values.tolist()
 print(stations_sel)
 #
 stations_sel = list(stations_sel)
@@ -39,12 +39,12 @@ scen_id = 1101
 # decide if UA and/or JA sjould be analyzed
 # scenario_ja_ua = ["JA", "UA"]
 # scenario_ja_ua = ["UA"]
-scenario_ja_ua = ["UA"]
+scenario_ja_ua = ["JA"]
 
 
 nodes = {"JA": {}, "UA": {}}
-# year_factor = 365
-year_factor = 1
+year_factor = 365
+# year_factor = 1
 
 modes = ["i","j","k"]
 #loop over regional models
@@ -212,7 +212,7 @@ csv_name = name + ".csv"
 
 import datetime
 today = datetime.date.today()
-info = {"project name": [name_of_project, ],"date": [datetime.date.today(), ],"catalogue": [project, ], "file created by": ["Daniel Sahlgren", ]} # collect info to save to info excel sheet
+info = {"project name": [name_of_project, ],"date": [datetime.date.today(), ],"catalogue": [project, ],"year factor": [year_factor,] ,"file created by": ["Daniel Sahlgren", ]} # collect info to save to info excel sheet
 info =pd.DataFrame.from_dict(info, orient="index")
 # info= pd.DataFrame.from_dict(info)
 #create new df for storing information in info sheet in excel
@@ -247,6 +247,10 @@ for r in dataframe_to_rows(pvt, index=True, header=True):
 
 for r in dataframe_to_rows(info, index=True, header=True):
     ws_info.append(r)
+    # ws_info.append("year factor " + year_factor)
+
+if 'Sheet' in wb.sheetnames:
+    wb.remove(wb['Sheet'])
 
 strf_today = datetime.date.today().strftime("%Y_%m_%d")
 
